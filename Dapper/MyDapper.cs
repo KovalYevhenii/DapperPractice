@@ -55,6 +55,7 @@ namespace SqlConnectionsPractice.Dapper
                             case 9:
                             repo.GetProductById();
                             break;
+                            
                         case 0:
                             Environment.Exit(0);
                             break;
