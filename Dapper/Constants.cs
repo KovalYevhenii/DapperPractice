@@ -8,7 +8,6 @@ namespace SqlConnectionsPractice.Dapper
 {
     internal class Constants
     {
-
         public const string Login = "postgres";
         public const string Password = "root";
         public const string Host = "localhost";
@@ -16,6 +15,5 @@ namespace SqlConnectionsPractice.Dapper
         public const string DbName = "postgres";
 
         public static string ConnectionString { get; } = $"User ID={Login};Password={Password};Host={Host};Port={Port};Database={DbName};";
-
     }
 }
