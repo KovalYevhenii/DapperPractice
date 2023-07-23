@@ -44,6 +44,7 @@ namespace SqlConnectionsPractice.Dapper
                 return -1;
             }
         }
+        
         public int GetCustomersCount()
         {
             var select = "select count(*) from customers";
@@ -86,6 +87,7 @@ namespace SqlConnectionsPractice.Dapper
                 return null;
             }
         }
+        
         public List<Customers> GetAllCustomers()
         {
             var select = "select id, first_name as FirstName,last_name as LastName,age from customers order by id";
@@ -102,6 +104,7 @@ namespace SqlConnectionsPractice.Dapper
 
             return customers;
         }
+        
         public List<Orders> GetOrderById()
         {
             var id = ValidateCustomerId();
@@ -119,8 +122,8 @@ namespace SqlConnectionsPractice.Dapper
                 $"Quantity = {order.Quantity}"));
 
             return order;
-
         }
+        
         public List<Orders> GetAllOrders()
         {
             var select = "select id, product_id as productID, quantity from orders";
@@ -181,6 +184,7 @@ namespace SqlConnectionsPractice.Dapper
                 return null;
             }
         }
+        
         public void JoinProducts()
         {
             Console.WriteLine("Enter the Produkt ID and age  where age > input age");
