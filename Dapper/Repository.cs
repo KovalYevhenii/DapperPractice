@@ -4,21 +4,19 @@ using SqlConnectionsPractice.Dapper.POCO;
 
 namespace SqlConnectionsPractice.Dapper
 {
-    internal sealed class Repository
+    internal sealed class Repository:ICustRepository
     {
         private readonly string _connectionString;
         public Repository(string connectionString)
         {
             _connectionString = connectionString;
         }
-
         public int? ValidateCustomerId()
         {
             int minId;
             int maxId;
 
             using var con = new NpgsqlConnection(_connectionString);
-            con.Open();
 
             minId = con.QuerySingleOrDefault<int>("select min(id) from customers");
             maxId = con.QuerySingleOrDefault<int>("select max(id) from customers");
@@ -51,15 +49,14 @@ namespace SqlConnectionsPractice.Dapper
             var select = "select count(*) from customers";
 
             using var con = new NpgsqlConnection(_connectionString);
-            con.Open();
-
+          
             var count = con.ExecuteScalar<int>(select);
 
             Console.WriteLine($"Count of customers: {count}");
 
             return count;
         }
-        public Customers? GetCustomerByAge()
+        public Customers GetCustomerByAge()
         {
             var inputAge = Console.ReadLine();
 
@@ -69,8 +66,7 @@ namespace SqlConnectionsPractice.Dapper
                 var select = $"select first_name as FirstName, last_name as LastName, age from customers where age > {inputAge}";
 
                 using var con = new NpgsqlConnection(_connectionString);
-                con.Open();
-
+                
                 var customer = con.QueryFirstOrDefault<Customers>(select);
 
                 if (customer != null)
@@ -95,7 +91,6 @@ namespace SqlConnectionsPractice.Dapper
             var select = "select id, first_name as FirstName,last_name as LastName,age from customers order by id";
 
             using var con = new NpgsqlConnection(_connectionString);
-            con.Open();
 
             var customers = con.Query<Customers>(select).ToList();
 
@@ -114,7 +109,6 @@ namespace SqlConnectionsPractice.Dapper
             var select = $"select id, product_id as ProductId, quantity from orders where customer_id = {id}";
 
             using var con = new NpgsqlConnection(_connectionString);
-            con.Open();
 
             var order = con.Query<Orders>(select).ToList();
 
@@ -132,7 +126,6 @@ namespace SqlConnectionsPractice.Dapper
             var select = "select id, product_id as productID, quantity from orders";
 
             using var con = new NpgsqlConnection(_connectionString);
-            con.Open();
 
             var order = con.Query<Orders>(select).ToList();
 
@@ -143,13 +136,11 @@ namespace SqlConnectionsPractice.Dapper
 
             return order;
         }
-
         public List<Products> GetAllProducts()
         {
             var select = "select id, product_name as ProductName, description, stockquantity, price from products";
 
             using var con = new NpgsqlConnection(_connectionString);
-            con.Open();
 
             var product = con.Query<Products>(select).ToList();
 
@@ -162,17 +153,16 @@ namespace SqlConnectionsPractice.Dapper
 
             return product;
         }
-
         public List<Products> GetProductById()
         {
             Console.WriteLine("Provide a product ID: ");
             var inputId = Console.ReadLine();
+
             if (int.TryParse(inputId, out int id))
             {
                 var select = $"select product_name as ProductName, description, stockquantity, price from products where id = {id}";
 
                 using var con = new NpgsqlConnection(_connectionString);
-                con.Open();
 
                 var product = con.Query<Products>(select).ToList();
 
@@ -183,7 +173,7 @@ namespace SqlConnectionsPractice.Dapper
                 $"stockquantity: {product.StockQuantity}, " +
                 $"price: {product.Price}"));
 
-                return product; 
+                return product;
             }
             else
             {
@@ -196,6 +186,7 @@ namespace SqlConnectionsPractice.Dapper
             Console.WriteLine("Enter the Produkt ID and age  where age > input age");
             var inputId = Console.ReadLine();
             var inputAge = Console.ReadLine();
+
             if (int.TryParse(inputId, out int id) && int.TryParse(inputAge, out int age))
             {
                 string sql = @$"SELECT c.id AS Id,
@@ -209,28 +200,27 @@ namespace SqlConnectionsPractice.Dapper
                                LEFT JOIN Products p ON p.id = o.Product_id
                                WHERE p.id = {id} AND c.age > {age}";
 
-                using (var con = new NpgsqlConnection(_connectionString))
-                {
-                    var customers = con.Query<Customers, Products, Customers>(
-                        sql,
-                        (customer, product) =>
-                        {
-                            customer.Products ??= new List<Products>();
+                using var con = new NpgsqlConnection(_connectionString);
 
-                            customer.Products.Add(product);
-
-                            return customer;
-
-                        }, splitOn: "ProductID").ToList();
-
-                    foreach (var customer in customers)
+                var customers = con.Query<Customers, Products, Customers>(
+                    sql,
+                    (customer, product) =>
                     {
-                        Console.WriteLine($"ID:{customer.Id},{customer.FirstName},{customer.LastName}");
+                        customer.Products ??= new List<Products>();
 
-                        foreach (var product in customer.Products)
-                        {
-                            Console.WriteLine($"Quant: {product.StockQuantity}, price: {product.Price}");
-                        }
+                        customer.Products.Add(product);
+
+                        return customer;
+
+                    }, splitOn: "ProductID").ToList();
+
+                foreach (var customer in customers)
+                {
+                    Console.WriteLine($"ID:{customer.Id},{customer.FirstName},{customer.LastName}");
+
+                    foreach (var product in customer.Products)
+                    {
+                        Console.WriteLine($"Quant: {product.StockQuantity}, price: {product.Price}");
                     }
                 }
             }
@@ -242,7 +232,7 @@ namespace SqlConnectionsPractice.Dapper
                        join orders on(customers.id = customer_id)";
 
             var con = new NpgsqlConnection(_connectionString);
-            con.Open();
+
             var res = con.Query<Customers, Orders, Customers>(sql, (customers, orders) =>
             {
                 customers.Orders ??= new List<Orders>();
@@ -259,10 +249,9 @@ namespace SqlConnectionsPractice.Dapper
 
                 foreach (var o in c.Orders)
                 {
-                    Console.WriteLine($"{o.Quantity}");
+                    Console.WriteLine($"Quantity: {o.Quantity}");
                 }
             }
         }
-
     }
 }

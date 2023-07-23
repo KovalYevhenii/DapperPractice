@@ -1,18 +1,21 @@
 ﻿
+using SqlConnectionsPractice.Dapper.POCO;
+
 namespace SqlConnectionsPractice.Dapper
 {
 
     internal static class MyDapper
     {
+       
         public static void Demo()
         {
             var repo = new Repository(Constants.ConnectionString);
 
             Console.WriteLine("Enter number to get information from Data Base\n 1- GetAllCustomers\n" +
                 " 2-GetOrderById\n 3- GetCustomersCount\n 4- GetAllProducts\n 5-GetCustomersByAge\n" +
-                " 6-Customer Orders\n 7- Amount of customer Orders\n 8- Get all orders\n 9- Get product by productID 0 - Close Programm");
+                " 6-Customer Orders\n 7- Amount of customer Orders\n 8- Get all orders\n 9- Get product by productID\n 0 - Close Programm");
 
-            while (repo != null)
+            while (true)
             {
                 var input = Console.ReadLine();
 
@@ -55,6 +58,7 @@ namespace SqlConnectionsPractice.Dapper
                             case 9:
                             repo.GetProductById();
                             break;
+
                         case 0:
                             Environment.Exit(0);
                             break;
